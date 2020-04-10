@@ -69,7 +69,7 @@ namespace KingdomColor
 
         public static bool ShouldReplaceKingdomColor(Clan playerClan)
         {
-            return playerClan.Kingdom != null && (!Settings.Instance.OnlyPlayerRuledKingdoms || playerClan.Kingdom.RulingClan == playerClan);
+            return playerClan != null && playerClan.Kingdom != null && (!Settings.Instance.OnlyPlayerRuledKingdoms || playerClan.Kingdom.RulingClan == playerClan);
         }
 
         void ApplyOverrides()
