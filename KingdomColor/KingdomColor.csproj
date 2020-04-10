@@ -27,7 +27,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\..\..\..\..\Games\Steam\SteamApps\common\Mount &amp; Blade II Bannerlord\Modules\BannerBuddy\bin\Win64_Shipping_Client\</OutputPath>
+    <OutputPath>..\..\..\..\..\Games\Steam\SteamApps\common\Mount &amp; Blade II Bannerlord\Modules\KingdomColor\bin\Win64_Shipping_Client\</OutputPath>
     <DefineConstants>
     </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
@@ -56,6 +56,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Runtime.InteropServices.RuntimeInformation" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="Microsoft.CSharp" />

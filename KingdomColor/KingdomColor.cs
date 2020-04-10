@@ -5,12 +5,89 @@ using System.Text;
 using System.Threading.Tasks;
 using TaleWorlds.MountAndBlade;
 using HarmonyLib;
+using TaleWorlds.Core;
+using TaleWorlds.CampaignSystem;
+using TaleWorlds.Library;
 
 namespace KingdomColor
 {
     public class KingdomColorModule : MBSubModuleBase
     {
         public static KingdomColorModule Instance;
+
+        public void SetKingdomColors(Kingdom kingdom, uint color1, uint color2)
+        {
+            try
+            {
+                var playerClan = Clan.PlayerClan;
+                var k = Traverse.Create(kingdom);
+                k.Property<uint>("Color").Value = color1;
+                k.Property<uint>("Color2").Value = color2;
+                k.Property<uint>("PrimaryBannerColor").Value = color1;
+                k.Property<uint>("SecondaryBannerColor").Value = color2;
+
+                Log.write($"Updating {kingdom.Name}");
+                Log.write($"Ruling clan {kingdom.RulingClan.Name}");
+                foreach (var kingdomClan in kingdom.Clans)
+                {
+                    Log.write($"  Updating clan {kingdomClan} colors");
+                    // Don't update player clan colours, we just did that you idiot.
+                    if (kingdomClan == playerClan)
+                    {
+                        Log.write($"!!Skipping clan {playerClan}");
+                        continue;
+                    }
+                    else
+                    {
+                        // var c = Traverse.Create(kingdomClan);
+                        // c.Method("UpdateBannerColorsAccordingToKingdom").GetValue();
+                        // UpdateBannerColorsAccordingToKingdom does not refresh ruler colors, but we want to change our NPC kings colors so here we are.
+                        kingdomClan.Banner?.ChangePrimaryColor(kingdom.PrimaryBannerColor);
+                        kingdomClan.Banner?.ChangeIconColors(kingdom.SecondaryBannerColor);
+                    }
+                }
+                // setting icons as dirt not necessary?
+            }
+            catch (Exception ex)
+            {
+                Log.write("Error applying clan colors");
+                InformationManager.DisplayMessage(new InformationMessage($"Error applying clan colors to {kingdom.Name}", new Color(1f, 0, 0)));
+                Log.write(ex);
+            }
+        }
+
+        public static bool ShouldReplaceKingdomColor(Clan playerClan)
+        {
+            return playerClan.Kingdom != null && (!Settings.Instance.OnlyPlayerRuledKingdoms || playerClan.Kingdom.RulingClan == playerClan);
+        }
+
+        void ApplyOverrides()
+        {
+            if (Settings.Instance.UseFactionColorOverrides)
+            {
+                foreach (var overrideInfo in Settings.Instance.FactionColorOverride)
+                {
+                    var faction = overrideInfo.Faction;
+                    var color1 = BannerManager.GetColor(overrideInfo.PrimaryColor);
+                    var color2 = BannerManager.GetColor(overrideInfo.SecondaryColor);
+                    if (faction == null) continue;
+                    var kingdoms = Campaign.Current.Kingdoms;
+                    foreach (var kingdom in kingdoms)
+                    {
+                        if (kingdom.StringId == faction || kingdom.Name.ToString().ToLower() == faction.ToLower())
+                        {
+                            SetKingdomColors(kingdom, color1, color2);
+                        }
+                    }
+                }
+            }
+            // Now reapply player clan
+            var playerClan = Clan.PlayerClan;
+            if (ShouldReplaceKingdomColor(playerClan))
+            {
+                SetKingdomColors(playerClan.Kingdom, playerClan.Color, playerClan.Color2);
+            }
+        }
         
         protected override void OnSubModuleLoad()
         {
@@ -19,8 +96,14 @@ namespace KingdomColor
             Settings.Load();
             // And make sure the file exists to allow editing
             Settings.Save();
-            var harmony = new Harmony("KingdomColor patches");
+            var harmony = new Harmony("KingdomColor patches 😎");
             harmony.PatchAll();
+        }
+
+        public override void OnGameInitializationFinished(Game game)
+        {
+            Settings.Load();
+            ApplyOverrides();
         }
 
         protected override void OnSubModuleUnloaded()
