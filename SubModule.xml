@@ -1,0 +1,30 @@
+<Module>
+    <Name value="KingdomColor"/>
+    <Id value="KingdomColor"/>
+    <Version value="v1.0.0"/>
+    <SingleplayerModule value="true"/>
+    <MultiplayerModule value="false"/>
+    <DependedModules/>
+    <SubModules>
+        <SubModule>
+            <Name value="KingdomColor"/>
+            <DLLName value="KingdomColor.dll"/>
+            <SubModuleClassType value="KingdomColor.KingdomColorModule"/>
+            <Tags>
+                <Tag key="DedicatedServerType" value="none" />
+                <Tag key="IsNoRenderModeElement" value="false" />
+            </Tags>
+        </SubModule>
+    </SubModules>
+    <Xmls>
+        <!-- <XmlNode>
+            <XmlName type="1" id="Items" path="customitems"/>
+        </XmlNode>  
+        <XmlNode>
+            <XmlName type="1" id="SPCultures" path="customcultures"/>
+        </XmlNode>
+        <XmlNode>
+            <XmlName type="1" id="NPCCharacters" path="customcharacters"/>
+        </XmlNode> -->
+    </Xmls>
+</Module>
