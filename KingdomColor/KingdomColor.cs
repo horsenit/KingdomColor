@@ -46,7 +46,18 @@ namespace KingdomColor
                         kingdomClan.Banner?.ChangeIconColors(kingdom.SecondaryBannerColor);
                     }
                 }
-                // setting icons as dirt not necessary?
+                // Does this do anything helpful? Harmful?
+                foreach (var party in MobileParty.All)
+                {
+                    if (party.Party.Owner?.Clan?.Kingdom == kingdom)
+                    {
+                        party.Party.Visuals?.SetMapIconAsDirty();
+                    }
+                }
+                foreach (var settlement in kingdom.Settlements)
+                {
+                    settlement.Party.Visuals?.SetMapIconAsDirty();
+                }
             }
             catch (Exception ex)
             {
@@ -87,6 +98,42 @@ namespace KingdomColor
             {
                 SetKingdomColors(playerClan.Kingdom, playerClan.Color, playerClan.Color2);
             }
+        }
+
+        [CommandLineFunctionality.CommandLineArgumentFunction("set_kingdom_color", "kingdomcolor")]
+        public static string Console_SetKingdomColor(List<string> args)
+        {
+            if (args.Count == 1 && args[0] == "colors")
+            {
+                string output = $"\nAvailable colors\n==============================\n";
+                foreach (var paletteEntry in BannerManager.ColorPalette)
+                {
+                    var c = Color.FromUint(paletteEntry.Value.Color);
+                    output += $" Id: {paletteEntry.Key}, {c.ToString()}, rgba({(int)(c.Red * 255f)}, {(int)(c.Green * 255)}, {(int)(c.Blue * 255)}, {c.Alpha})\n";
+                }
+                return output;
+            }
+            else if (args.Count == 1 && args[0] == "kingdoms")
+            {
+                string output = "\nAvailable kingdoms\n==============================\n";
+                foreach (var objectType in MBObjectManager.Instance.GetObjectTypeList<Kingdom>())
+                    output = output + $" Id: {objectType.StringId} Name: {objectType.Name}\n";
+                return output;
+            }
+            else if (args.Count < 3)
+            {
+                return "Usage: \"kingdomcolor.set_kingdom_color [KingdomId] [ColorId] [ColorId]\"\nUse \"kingdomcolor.set_kingdom_color colors/kingdoms\" to list available colors or kingdoms";
+            }
+            var kingdom = MBObjectManager.Instance.GetObject<Kingdom>(args[0]);
+            if (kingdom == null) return "Couldn't find kingdom.";
+            int color1;
+            int color2;
+            if (!int.TryParse(args[1], out color1)) return "Invalid color1 specified";
+            if (!int.TryParse(args[2], out color2)) return "Invalid color2 specified";
+            uint setColor1 = BannerManager.GetColor(color1);
+            uint setColor2 = BannerManager.GetColor(color2);
+            Instance.SetKingdomColors(kingdom, setColor1, setColor2);
+            return $"Set {kingdom.Name} colors. Open and close the Clan page to take effect.";
         }
         
         protected override void OnSubModuleLoad()
