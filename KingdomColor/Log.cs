@@ -31,7 +31,7 @@ namespace KingdomColor
             if (Writer == null) return;
             try
             {
-                Writer.WriteLine(msg);
+                Writer.WriteLine($"{DateTime.Now.ToString("[HH:mm:ss.fff]")} {msg}");
                 Writer.Flush();
             }
             catch (Exception ex)
