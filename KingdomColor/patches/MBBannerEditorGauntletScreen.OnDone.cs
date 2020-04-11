@@ -21,13 +21,9 @@ namespace KingdomColor.patches
             {
                 var _bannerEditorLayer = Traverse.Create(__instance).Field<BannerEditorView>("_bannerEditorLayer").Value;
                 var playerClan = Traverse.Create(__instance).Field<Clan>("_clan").Value;
-                if (KingdomColorModule.ShouldReplaceKingdomColor(playerClan))
-                {
-                    var kingdom = playerClan.Kingdom;
-                    var color1 = _bannerEditorLayer.DataSource.BannerVM.GetPrimaryColor();
-                    var color2 = _bannerEditorLayer.DataSource.BannerVM.GetSigilColor();
-                    KingdomColorModule.Instance.SetKingdomColors(kingdom, color1, color2);
-                }
+                var color1 = _bannerEditorLayer.DataSource.BannerVM.GetPrimaryColor();
+                var color2 = _bannerEditorLayer.DataSource.BannerVM.GetSigilColor();
+                KingdomColorModule.Instance.SetClanKingdomColors(playerClan, color1, color2);
             }
             catch (Exception ex)
             {

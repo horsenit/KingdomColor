@@ -7,15 +7,17 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 using TaleWorlds.CampaignSystem;
+using TaleWorlds.Core;
 
 namespace KingdomColor
 {
-    public struct FactionColor
+    public class FactionColor
     {
         public string Faction;
         public int PrimaryColor;
         public int SecondaryColor;
 
+        public FactionColor() { }
         public FactionColor(string Faction, int PrimaryColor, int SecondaryColor)
         {
             this.Faction = Faction;
@@ -29,6 +31,26 @@ namespace KingdomColor
         }
     }
 
+    public class UniformColor
+    {
+        public string Faction;
+        public string Color;
+        public string Color2;
+
+        public UniformColor() { }
+        public UniformColor(string Faction, string Color, string Color2)
+        {
+            this.Faction = Faction;
+            this.Color = Color;
+            this.Color2 = Color2;
+        }
+
+        public static implicit operator UniformColor((string, string, string) value)
+        {
+            return new UniformColor(value.Item1, value.Item2, value.Item3);
+        }
+    }
+
     public class Settings
     {
         public bool OnlyPlayerRuledKingdoms { get; set; } = true;
@@ -36,6 +58,25 @@ namespace KingdomColor
 
         [XmlElement]
         public List<FactionColor> FactionColorOverride { get; set; } = new List<FactionColor>();
+
+        public (uint, uint)? GetFactionColorOverride(Kingdom kingdom)
+        {
+            var info = FactionColorOverride.LastOrDefault(co => co.Faction == kingdom.StringId || co.Faction.ToLowerInvariant() == kingdom.Name.ToString().ToLowerInvariant());
+            if (info == null) return null;
+            return (BannerManager.GetColor(info.PrimaryColor), BannerManager.GetColor(info.SecondaryColor));
+        }
+
+        public bool UseUniformColorOverrides { get; set; } = false;
+
+        [XmlElement]
+        public List<UniformColor> UniformColorOverride { get; set; } = new List<UniformColor>();
+
+        public (uint, uint)? GetUniformColorOverride(Kingdom kingdom)
+        {
+            var info = UniformColorOverride.LastOrDefault(co => co.Faction == kingdom.StringId || co.Faction.ToLowerInvariant() == kingdom.Name.ToString().ToLowerInvariant());
+            if (info == null) return null;
+            return (KingdomColorModule.ParseUniformColor(info.Color), KingdomColorModule.ParseUniformColor(info.Color2));
+        }
 
         // parameterless constructor for XmlSerializer
         public Settings() { }
@@ -53,6 +94,10 @@ namespace KingdomColor
                     ("khuzait", 10, 11),
                     ("sturgia", 12, 13),
                     ("vlandia", 14, 15)
+                };
+                UniformColorOverride = new List<UniformColor>()
+                {
+                    ("player_kingdom", "#ff00ff", "14")
                 };
             }
         }

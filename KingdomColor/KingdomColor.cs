@@ -8,6 +8,7 @@ using HarmonyLib;
 using TaleWorlds.Core;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Library;
+using System.Globalization;
 
 namespace KingdomColor
 {
@@ -15,16 +16,16 @@ namespace KingdomColor
     {
         public static KingdomColorModule Instance;
 
-        public void SetKingdomColors(Kingdom kingdom, uint color1, uint color2)
+        public void SetKingdomColors(Kingdom kingdom, uint primaryBannerColor, uint secondaryBannerColor, uint color, uint color2)
         {
             try
             {
                 var playerClan = Clan.PlayerClan;
                 var k = Traverse.Create(kingdom);
-                k.Property<uint>("Color").Value = color1;
+                k.Property<uint>("Color").Value = color;
                 k.Property<uint>("Color2").Value = color2;
-                k.Property<uint>("PrimaryBannerColor").Value = color1;
-                k.Property<uint>("SecondaryBannerColor").Value = color2;
+                k.Property<uint>("PrimaryBannerColor").Value = primaryBannerColor;
+                k.Property<uint>("SecondaryBannerColor").Value = secondaryBannerColor;
 
                 Log.write($"Updating {kingdom.Name}");
                 Log.write($"Ruling clan {kingdom.RulingClan.Name}");
@@ -67,9 +68,62 @@ namespace KingdomColor
             }
         }
 
+        // HTML color #ffffff or banner color 123
+        public static uint ParseUniformColor(string color)
+        {
+            const uint INVALID_COLOR = 0xdeadbeef;
+            color = color.Trim();
+            int bannerColor;
+            if (int.TryParse(color, out bannerColor))
+            {
+                return BannerManager.GetColor(bannerColor);
+            }
+            if (color.Length < 7 || color[0] != '#') return INVALID_COLOR;
+            try
+            {
+                byte r = byte.Parse(color.Substring(1, 2), NumberStyles.HexNumber);
+                byte g = byte.Parse(color.Substring(3, 2), NumberStyles.HexNumber);
+                byte b = byte.Parse(color.Substring(5, 2), NumberStyles.HexNumber);
+                byte a = color.Length == 9 ? byte.Parse(color.Substring(7, 2), NumberStyles.HexNumber) : (byte)255;
+                return ((uint)a << 24) | ((uint)r << 16) | ((uint)g << 8) | ((uint)b);
+            }
+            catch
+            {
+                return INVALID_COLOR;
+            }
+        }
+
         public static bool ShouldReplaceKingdomColor(Clan playerClan)
         {
             return playerClan != null && playerClan.Kingdom != null && (!Settings.Instance.OnlyPlayerRuledKingdoms || playerClan.Kingdom.RulingClan == playerClan);
+        }
+
+        public static (uint, uint, uint, uint) GetOverrideColors(Kingdom kingdom, uint primaryBannerColor, uint secondaryBannerColor, uint color, uint color2)
+        {
+            if (Settings.Instance.UseFactionColorOverrides)
+            {
+                var info = Settings.Instance.GetFactionColorOverride(kingdom);
+                if (info.HasValue)
+                    (primaryBannerColor, secondaryBannerColor) = info.Value;
+            }
+            if (Settings.Instance.UseUniformColorOverrides)
+            {
+                var info = Settings.Instance.GetUniformColorOverride(kingdom);
+                if (info.HasValue)
+                    (color, color2) = info.Value;
+            }
+            return (primaryBannerColor, secondaryBannerColor, color, color2);
+        }
+
+        public void SetClanKingdomColors(Clan playerClan, uint clanColor1, uint clanColor2)
+        {
+            if (ShouldReplaceKingdomColor(playerClan))
+            {
+                var kingdom = playerClan.Kingdom;
+                var (primaryBannerColor, secondaryBannerColor, color, color2) =
+                    GetOverrideColors(kingdom, clanColor1, clanColor2, clanColor1, clanColor2);
+                SetKingdomColors(kingdom, primaryBannerColor, secondaryBannerColor, color, color2);
+            }
         }
 
         void ApplyOverrides()
@@ -79,29 +133,21 @@ namespace KingdomColor
                 return;
             }
 
-            if (Settings.Instance.UseFactionColorOverrides)
+            if (Settings.Instance.UseFactionColorOverrides || Settings.Instance.UseUniformColorOverrides)
             {
-                foreach (var overrideInfo in Settings.Instance.FactionColorOverride)
+                var kingdoms = Campaign.Current.Kingdoms;
+                foreach (var kingdom in kingdoms)
                 {
-                    var faction = overrideInfo.Faction;
-                    var color1 = BannerManager.GetColor(overrideInfo.PrimaryColor);
-                    var color2 = BannerManager.GetColor(overrideInfo.SecondaryColor);
-                    if (faction == null) continue;
-                    var kingdoms = Campaign.Current.Kingdoms;
-                    foreach (var kingdom in kingdoms)
-                    {
-                        if (kingdom.StringId == faction || kingdom.Name.ToString().ToLower() == faction.ToLower())
-                        {
-                            SetKingdomColors(kingdom, color1, color2);
-                        }
-                    }
+                    var (primaryBannerColor, secondaryBannerColor, color, color2) =
+                        GetOverrideColors(kingdom, kingdom.PrimaryBannerColor, kingdom.SecondaryBannerColor, kingdom.Color, kingdom.Color2);
+                    SetKingdomColors(kingdom, primaryBannerColor, secondaryBannerColor, color, color2);
                 }
             }
             // Now reapply player clan
             var playerClan = Clan.PlayerClan;
-            if (ShouldReplaceKingdomColor(playerClan))
+            if (playerClan != null)
             {
-                SetKingdomColors(playerClan.Kingdom, playerClan.Color, playerClan.Color2);
+                SetClanKingdomColors(playerClan, playerClan.Color, playerClan.Color2);
             }
         }
 
@@ -127,17 +173,24 @@ namespace KingdomColor
             }
             else if (args.Count < 3)
             {
-                return "Usage: \"kingdomcolor.set_kingdom_color [KingdomId] [ColorId] [ColorId]\"\nUse \"kingdomcolor.set_kingdom_color colors/kingdoms\" to list available colors or kingdoms";
+                return "Usage: \"kingdomcolor.set_kingdom_color [KingdomId] [ColorId] [ColorId] [UniformColor] [UniformColor]\"\nUniformColors are optional and can be an HTML color ('#ffffff') or color id\nUse \"kingdomcolor.set_kingdom_color colors/kingdoms\" to list available colors or kingdoms";
             }
             var kingdom = MBObjectManager.Instance.GetObject<Kingdom>(args[0]);
             if (kingdom == null) return "Couldn't find kingdom.";
-            int color1;
-            int color2;
-            if (!int.TryParse(args[1], out color1)) return "Invalid color1 specified";
-            if (!int.TryParse(args[2], out color2)) return "Invalid color2 specified";
-            uint setColor1 = BannerManager.GetColor(color1);
-            uint setColor2 = BannerManager.GetColor(color2);
-            Instance.SetKingdomColors(kingdom, setColor1, setColor2);
+            int bannerColor;
+            int bannerColor2;
+            if (!int.TryParse(args[1], out bannerColor)) return "Invalid color1 specified";
+            if (!int.TryParse(args[2], out bannerColor2)) return "Invalid color2 specified";
+            uint primaryBannerColor = BannerManager.GetColor(bannerColor);
+            uint secondaryBannerColor = BannerManager.GetColor(bannerColor2);
+            uint? color1 = null;
+            uint? color2 = null;
+            if (args.Count >= 4)
+            {
+                color1 = ParseUniformColor(args[3]);
+                color2 = ParseUniformColor(args[4]);
+            }
+            Instance.SetKingdomColors(kingdom, primaryBannerColor, secondaryBannerColor, color1 ?? primaryBannerColor, color2 ?? secondaryBannerColor);
             return $"Set {kingdom.Name} colors. Open and close the Clan page to take effect.";
         }
         
