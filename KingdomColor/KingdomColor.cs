@@ -74,6 +74,11 @@ namespace KingdomColor
 
         void ApplyOverrides()
         {
+            if (Campaign.Current == null)
+            {
+                return;
+            }
+
             if (Settings.Instance.UseFactionColorOverrides)
             {
                 foreach (var overrideInfo in Settings.Instance.FactionColorOverride)
