@@ -97,7 +97,7 @@ namespace KingdomColor
                 };
                 UniformColorOverride = new List<UniformColor>()
                 {
-                    ("player_kingdom", "#ff00ff", "14"),
+                    ("playerland_kingdom", "#ff0000", "#0000ff"),
                     ("aserai", "#965228", "#4F2212"),
                     ("battania", "#2D3F1D", "#BFCBB0"),
                     ("empire", "#4E3A55", "#DE9953"),
