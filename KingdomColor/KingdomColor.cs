@@ -9,6 +9,7 @@ using TaleWorlds.Core;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Library;
 using System.Globalization;
+using TaleWorlds.MountAndBlade.View;
 
 namespace KingdomColor
 {
@@ -123,6 +124,25 @@ namespace KingdomColor
                 var (primaryBannerColor, secondaryBannerColor, color, color2) =
                     GetOverrideColors(kingdom, clanColor1, clanColor2, clanColor1, clanColor2);
                 SetKingdomColors(kingdom, primaryBannerColor, secondaryBannerColor, color, color2);
+            }
+        }
+
+        public bool SetClanBanner(Clan clan, string bannerCode)
+        {
+            try
+            {
+                if (clan == null) return false;
+                Log.write($"Trying to set {clan.Name}'s banner to {bannerCode}");
+                // Try to fish out errors by forcing the deserialization and a render attempt before setting the clan's banner
+                var bd = new Banner(bannerCode);
+                var m = bd.ConvertToMultiMesh();
+                clan.Banner.Deserialize(bannerCode);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Log.write(ex);
+                return false;
             }
         }
 
