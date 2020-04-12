@@ -16,6 +16,11 @@ namespace KingdomColor.patches
             var clan = __instance;
             if (Settings.Instance != null)
             {
+                if (clan == Clan.PlayerClan)
+                {
+                    if (!Settings.Instance.PlayerClanBannerFollowsKingdom)
+                        return false;
+                }
                 if (Settings.Instance.UseClanBannerOverrides)
                 {
                     var info = Settings.Instance.GetClanBannerOverride(clan);
@@ -35,7 +40,7 @@ namespace KingdomColor.patches
         {
             var clan = __instance;
             var info = __state;
-            if (info != null && clan.Kingdom?.RulingClan == clan && info.FollowKingdomColors)
+            if (info != null && clan?.Kingdom?.RulingClan == clan && info.FollowKingdomColors)
             {
                 clan.Banner?.ChangePrimaryColor(clan.Kingdom.PrimaryBannerColor);
                 clan.Banner?.ChangeIconColors(clan.Kingdom.SecondaryBannerColor);

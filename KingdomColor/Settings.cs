@@ -73,7 +73,9 @@ namespace KingdomColor
     public class Settings
     {
         public bool OnlyPlayerRuledKingdoms { get; set; } = true;
+        public bool PlayerClanBannerFollowsKingdom { get; set; } = true;
         public bool UseFactionColorOverrides { get; set; } = false;
+
 
         [XmlElement]
         public List<FactionColor> FactionColorOverride { get; set; } = new List<FactionColor>();

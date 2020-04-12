@@ -17,11 +17,10 @@ namespace KingdomColor
     {
         public static KingdomColorModule Instance;
 
-        public void SetKingdomColors(Kingdom kingdom, uint primaryBannerColor, uint secondaryBannerColor, uint color, uint color2)
+        public void SetKingdomColors(Kingdom kingdom, uint primaryBannerColor, uint secondaryBannerColor, uint color, uint color2, Clan skipClan = null)
         {
             try
             {
-                var playerClan = Clan.PlayerClan;
                 var k = Traverse.Create(kingdom);
                 k.Property<uint>("Color").Value = color;
                 k.Property<uint>("Color2").Value = color2;
@@ -34,9 +33,9 @@ namespace KingdomColor
                 {
                     Log.write($"  Updating clan {kingdomClan} colors");
                     // Don't update player clan colours, we just did that you idiot.
-                    if (kingdomClan == playerClan)
+                    if (kingdomClan == skipClan)
                     {
-                        Log.write($"!!Skipping clan {playerClan}");
+                        Log.write($"!!Skipping clan {skipClan}");
                         continue;
                     }
                     else
@@ -123,7 +122,7 @@ namespace KingdomColor
                 var kingdom = playerClan.Kingdom;
                 var (primaryBannerColor, secondaryBannerColor, color, color2) =
                     GetOverrideColors(kingdom, clanColor1, clanColor2, clanColor1, clanColor2);
-                SetKingdomColors(kingdom, primaryBannerColor, secondaryBannerColor, color, color2);
+                SetKingdomColors(kingdom, primaryBannerColor, secondaryBannerColor, color, color2, playerClan);
             }
         }
 
