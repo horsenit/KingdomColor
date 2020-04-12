@@ -131,6 +131,7 @@ namespace KingdomColor
         {
             try
             {
+                if (bannerCode == null) return false;
                 if (clan == null) return false;
                 Log.write($"Trying to set {clan.Name}'s banner to {bannerCode}");
                 // Try to fish out errors by forcing the deserialization and a render attempt before setting the clan's banner
@@ -144,6 +145,21 @@ namespace KingdomColor
                 Log.write(ex);
                 return false;
             }
+        }
+
+        public bool SetClanBanner(Clan clan, ClanBanner info)
+        {
+            if (info == null) return false;
+            if (clan == null) return false;
+            var bannerCode = info.BannerCode;
+            if (SetClanBanner(clan, bannerCode))
+            {
+                if (info.FollowKingdomColors)
+                {
+                    Traverse.Create(clan).Method("UpdateBannerColorsAccordingToKingdom").GetValue();
+                }
+            }
+            return true;
         }
 
         void ApplyOverrides()
@@ -161,6 +177,15 @@ namespace KingdomColor
                     var (primaryBannerColor, secondaryBannerColor, color, color2) =
                         GetOverrideColors(kingdom, kingdom.PrimaryBannerColor, kingdom.SecondaryBannerColor, kingdom.Color, kingdom.Color2);
                     SetKingdomColors(kingdom, primaryBannerColor, secondaryBannerColor, color, color2);
+                }
+            }
+            if (Settings.Instance.UseClanBannerOverrides)
+            {
+                var clans = Campaign.Current.Clans;
+                foreach (var clan in clans)
+                {
+                    var clanBanner = Settings.Instance.GetClanBannerOverride(clan);
+                    SetClanBanner(clan, clanBanner);
                 }
             }
             // Now reapply player clan

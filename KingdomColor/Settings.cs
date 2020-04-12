@@ -51,6 +51,25 @@ namespace KingdomColor
         }
     }
 
+    public class ClanBanner
+    {
+        public string Clan;
+        public string BannerCode;
+        public bool FollowKingdomColors = false;
+
+        public ClanBanner() { }
+        public ClanBanner(string Clan, string BannerCode)
+        {
+            this.Clan = Clan;
+            this.BannerCode = BannerCode;
+        }
+
+        public static implicit operator ClanBanner((string, string) value)
+        {
+            return new ClanBanner(value.Item1, value.Item2);
+        }
+    }
+
     public class Settings
     {
         public bool OnlyPlayerRuledKingdoms { get; set; } = true;
@@ -76,6 +95,18 @@ namespace KingdomColor
             var info = UniformColorOverride.LastOrDefault(co => co.Faction == kingdom.StringId || co.Faction.ToLowerInvariant() == kingdom.Name.ToString().ToLowerInvariant());
             if (info == null) return null;
             return (KingdomColorModule.ParseUniformColor(info.Color), KingdomColorModule.ParseUniformColor(info.Color2));
+        }
+
+        public bool UseClanBannerOverrides { get; set; } = false;
+
+        [XmlElement]
+        public List<ClanBanner> ClanBannerOverride { get; set; } = new List<ClanBanner>();
+
+        public ClanBanner GetClanBannerOverride(Clan clan)
+        {
+            var info = ClanBannerOverride.LastOrDefault(co => co.Clan == clan.StringId || co.Clan.ToLowerInvariant() == clan.Name.ToString().ToLowerInvariant());
+            if (info == null) return null;
+            return info;
         }
 
         // parameterless constructor for XmlSerializer
@@ -106,6 +137,10 @@ namespace KingdomColor
                     ("khuzait", "#58888B", "#CCBB89"),
                     ("sturgia", "#1C2A50", "#949CCC"),
                     ("vlandia", "#5C2017", "#ECBA44"),
+                };
+                ClanBannerOverride = new List<ClanBanner>()
+                {
+                    ("dey Meroc", "16.142.116.1536.1100.764.764.0.0.0.503.116.116.600.600.770.1229.1.1.0.503.116.116.600.600.764.364.1.1.0.510.142.116.1319.800.762.1209.1.0.270.108.142.116.1328.703.764.534.1.1.0.434.155.116.775.675.1204.724.1.1.-15.434.155.116.775.675.324.724.1.0.15.438.142.116.1420.940.764.1114.1.1.0.301.155.116.1000.737.710.969.1.0.155.301.155.116.1000.737.812.970.1.0.205.457.142.116.551.473.764.1027.1.0.180.301.155.116.1000.737.839.1054.1.0.-115.301.155.116.1000.737.690.1045.1.0.115.457.142.116.713.473.770.964.1.0.180.301.155.116.1000.737.588.1034.1.0.100.301.155.116.1000.737.926.1044.1.0.-100.301.142.116.1000.737.726.981.1.0.170.301.142.116.1000.737.794.979.1.0.190.304.142.116.1000.670.1064.1009.1.1.-70.304.142.116.1000.670.464.1009.1.0.70.445.155.116.800.800.760.1254.1.0.180.133.155.116.700.630.764.364.1.1.0.314.155.116.700.630.764.514.1.1.0.433.155.116.240.290.574.514.1.1.10.433.155.116.240.290.954.514.1.0.-6.503.142.116.800.800.764.764.1.1.0.503.116.116.720.720.764.764.1.1.0.503.116.155.400.400.764.764.1.1.0.503.142.155.370.370.764.764.1.1.0.423.155.116.694.628.764.775.1.1.0.445.155.116.95.80.765.464.1.0.0.523.155.116.60.65.764.504.0.0.0.401.155.116.425.425.764.764.1.1.15.401.155.116.325.325.764.759.1.1.0.401.155.116.230.230.764.764.1.1.15.401.155.116.150.150.764.764.1.1.0.401.155.116.115.115.764.764.1.1.15.401.155.116.75.75.764.764.1.1.0"),
                 };
             }
         }
