@@ -4,7 +4,13 @@
     <Version value="v1.1.1"/>
     <SingleplayerModule value="true"/>
     <MultiplayerModule value="false"/>
-    <DependedModules/>
+    <DependedModules>
+        <DependedModule Id="Native"/>
+        <DependedModule Id="SandBoxCore"/>
+        <DependedModule Id="Sandbox"/>
+        <DependedModule Id="CustomBattle"/>
+        <DependedModule Id="StoryMode" />
+    </DependedModules>
     <SubModules>
         <SubModule>
             <Name value="KingdomColor"/>
@@ -17,14 +23,5 @@
         </SubModule>
     </SubModules>
     <Xmls>
-        <!-- <XmlNode>
-            <XmlName type="1" id="Items" path="customitems"/>
-        </XmlNode>  
-        <XmlNode>
-            <XmlName type="1" id="SPCultures" path="customcultures"/>
-        </XmlNode>
-        <XmlNode>
-            <XmlName type="1" id="NPCCharacters" path="customcharacters"/>
-        </XmlNode> -->
     </Xmls>
 </Module>
