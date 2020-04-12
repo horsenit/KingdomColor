@@ -282,6 +282,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConsoleCommands.cs" />
+    <Compile Include="ConsoleUtilities.cs" />
     <Compile Include="Log.cs" />
     <Compile Include="KingdomColor.cs" />
     <Compile Include="patches\BannerEditorVM.SetClanRelatedRules.cs" />
