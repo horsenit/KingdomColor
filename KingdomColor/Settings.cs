@@ -107,7 +107,7 @@ namespace KingdomColor
 
         public ClanBanner GetClanBannerOverride(Clan clan)
         {
-            var info = ClanBannerOverride.LastOrDefault(co => co.Clan == clan.StringId || co.Clan.ToLowerInvariant() == clan.Name.ToString().ToLowerInvariant());
+            var info = ClanBannerOverride.LastOrDefault(co => co.Clan == clan.StringId || co.Clan.ToLowerInvariant() == clan.Name?.ToString().ToLowerInvariant());
             if (info == null) return null;
             return info;
         }
