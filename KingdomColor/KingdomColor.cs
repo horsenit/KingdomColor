@@ -40,8 +40,11 @@ namespace KingdomColor
                     }
                     else
                     {
-                        // Patched UpdateBannerColorsAccordingToKingdom will change ruler colors, and apply other necessary logic
-                        Traverse.Create(kingdomClan).Method("UpdateBannerColorsAccordingToKingdom").GetValue();
+                        // var c = Traverse.Create(kingdomClan);
+                        // c.Method("UpdateBannerColorsAccordingToKingdom").GetValue();
+                        // UpdateBannerColorsAccordingToKingdom does not refresh ruler colors, but we want to change our NPC kings colors so here we are.
+                        kingdomClan.Banner?.ChangePrimaryColor(kingdom.PrimaryBannerColor);
+                        kingdomClan.Banner?.ChangeIconColors(kingdom.SecondaryBannerColor);
                     }
                 }
                 // Does this do anything helpful? Harmful?
