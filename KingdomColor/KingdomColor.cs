@@ -175,7 +175,7 @@ namespace KingdomColor
                 {
                     var (primaryBannerColor, secondaryBannerColor, color, color2) =
                         GetOverrideColors(kingdom, kingdom.PrimaryBannerColor, kingdom.SecondaryBannerColor, kingdom.Color, kingdom.Color2);
-                    SetKingdomColors(kingdom, primaryBannerColor, secondaryBannerColor, color, color2);
+                    SetKingdomColors(kingdom, primaryBannerColor, secondaryBannerColor, color, color2, Settings.Instance.PlayerClanBannerFollowsKingdom ? null : Clan.PlayerClan);
                 }
             }
             if (Settings.Instance.UseClanBannerOverrides)
