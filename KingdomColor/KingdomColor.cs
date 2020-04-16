@@ -216,5 +216,20 @@ namespace KingdomColor
         {
             Instance = null;
         }
+
+        static List<(string, Color)> messages = new List<(string, Color)>();
+        public static void DelayMessage(string message, Color? color = null)
+        {
+            messages.Add((message, color ?? Color.White));
+        }
+
+        protected override void OnBeforeInitialModuleScreenSetAsRoot()
+        {
+            foreach (var (message, color) in messages)
+            {
+                InformationManager.DisplayMessage(new InformationMessage(message, color));
+            }
+            messages.Clear();
+        }
     }
 }

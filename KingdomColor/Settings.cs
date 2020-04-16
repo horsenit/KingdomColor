@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Xml.Serialization;
 using TaleWorlds.CampaignSystem;
 using TaleWorlds.Core;
+using TaleWorlds.Library;
 
 namespace KingdomColor
 {
@@ -153,6 +154,11 @@ namespace KingdomColor
 
         public static bool Load()
         {
+            if (File.Exists(Settings.OldConfigPath))
+            {
+                KingdomColorModule.DelayMessage("KingdomColor: Loading settings from Modules\\KingdomColor\\settings.xml instead of Documents\\Mount and Blade II Bannerlord\\Configs\\KingdomColor.xml", Color.FromUint(0xffff8000));
+                return Settings.Load(Settings.OldConfigPath);
+            }
             return Settings.Load(Settings.ConfigPath);
         }
 
@@ -177,14 +183,8 @@ namespace KingdomColor
             return false;
         }
 
-        static string ConfigPath
-        {
-            get
-            {
-                var dir = Path.GetDirectoryName(Path.GetFullPath(Assembly.GetExecutingAssembly().Location));
-                return Path.Combine(dir, "../..", "settings.xml");
-            }
-        }
+        static string ConfigPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), "Mount and Blade II Bannerlord", "Configs", "KingdomColor.xml");
+        static string OldConfigPath => Path.Combine(Path.GetDirectoryName(Path.GetFullPath(Assembly.GetExecutingAssembly().Location)), "..", "..", "settings.xml");
 
         public static void Save()
         {
