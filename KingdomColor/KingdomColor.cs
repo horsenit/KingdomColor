@@ -10,6 +10,7 @@ using TaleWorlds.CampaignSystem;
 using TaleWorlds.Library;
 using System.Globalization;
 using TaleWorlds.MountAndBlade.View;
+using TaleWorlds.InputSystem;
 
 namespace KingdomColor
 {
@@ -198,12 +199,25 @@ namespace KingdomColor
         protected override void OnSubModuleLoad()
         {
             base.OnSubModuleLoad();
-            Instance = this;
-            Settings.Load();
-            // And make sure the file exists to allow editing
-            Settings.Save();
-            var harmony = new Harmony("KingdomColor patches 😎");
-            harmony.PatchAll();
+            try
+            {
+                Instance = this;
+                var harmony = new Harmony("KingdomColor patches 😎");
+                harmony.PatchAll();
+                Settings.Load();
+                // And make sure the file exists to allow editing, including new defaults
+                Settings.Save();
+            }
+            catch (Exception ex)
+            {
+                DelayMessage("KingdomColor encountered an error while initializing, details copied to clipboard.", Color.FromUint(0xffff0000));
+                Input.SetClipboardText(FormatException(ex));
+            }
+        }
+
+        static string FormatException(Exception ex)
+        {
+            return $"{ex.GetType().Name}: {ex.Message}\r\n{ex.StackTrace}" + (ex.InnerException != null ? "\r\n" + FormatException(ex.InnerException) : "");
         }
 
         public override void OnGameInitializationFinished(Game game)
