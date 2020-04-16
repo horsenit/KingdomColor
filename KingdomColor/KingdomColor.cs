@@ -99,7 +99,7 @@ namespace KingdomColor
             return playerClan != null && playerClan.Kingdom != null && (!Settings.Instance.OnlyPlayerRuledKingdoms || playerClan.Kingdom.RulingClan == playerClan);
         }
 
-        public static (uint, uint, uint, uint) GetOverrideColors(Kingdom kingdom, uint primaryBannerColor, uint secondaryBannerColor, uint color, uint color2)
+        public static (uint, uint, uint, uint) GetOverrideColors(IFaction kingdom, uint primaryBannerColor, uint secondaryBannerColor, uint color, uint color2)
         {
             if (Settings.Instance.UseFactionColorOverrides)
             {
@@ -177,6 +177,14 @@ namespace KingdomColor
                     var (primaryBannerColor, secondaryBannerColor, color, color2) =
                         GetOverrideColors(kingdom, kingdom.PrimaryBannerColor, kingdom.SecondaryBannerColor, kingdom.Color, kingdom.Color2);
                     SetKingdomColors(kingdom, primaryBannerColor, secondaryBannerColor, color, color2, Settings.Instance.PlayerClanBannerFollowsKingdom ? null : Clan.PlayerClan);
+                }
+                var clans = Campaign.Current.Clans;
+                foreach (var clan in clans)
+                {
+                    var (primaryBannerColor, secondaryBannerColor, color, color2) =
+                        GetOverrideColors(clan, clan.Color, clan.Color2, clan.Color, clan.Color2);
+                    clan.Color = color;
+                    clan.Color2 = color2;
                 }
             }
             if (Settings.Instance.UseClanBannerOverrides)

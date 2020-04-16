@@ -82,7 +82,7 @@ namespace KingdomColor
         [XmlElement]
         public List<FactionColor> FactionColorOverride { get; set; } = new List<FactionColor>();
 
-        public (uint, uint)? GetFactionColorOverride(Kingdom kingdom)
+        public (uint, uint)? GetFactionColorOverride(IFaction kingdom)
         {
             var info = FactionColorOverride.LastOrDefault(co => co.Faction == kingdom.StringId || co.Faction.ToLowerInvariant() == kingdom.Name.ToString().ToLowerInvariant());
             if (info == null) return null;
@@ -94,7 +94,7 @@ namespace KingdomColor
         [XmlElement]
         public List<UniformColor> UniformColorOverride { get; set; } = new List<UniformColor>();
 
-        public (uint, uint)? GetUniformColorOverride(Kingdom kingdom)
+        public (uint, uint)? GetUniformColorOverride(IFaction kingdom)
         {
             var info = UniformColorOverride.LastOrDefault(co => co.Faction == kingdom.StringId || co.Faction.ToLowerInvariant() == kingdom.Name.ToString().ToLowerInvariant());
             if (info == null) return null;
