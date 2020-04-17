@@ -150,7 +150,7 @@ namespace KingdomColor
             }
         }
 
-        public static Settings Instance { get; private set; } = new Settings(true);
+        public static Settings Instance { get; set; } = new Settings(true);
 
         public static bool Load()
         {

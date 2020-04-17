@@ -28,7 +28,7 @@ namespace KingdomColor
                 k.Property<uint>("PrimaryBannerColor").Value = primaryBannerColor;
                 k.Property<uint>("SecondaryBannerColor").Value = secondaryBannerColor;
 
-                Log.write($"Updating {kingdom.Name}");
+                Log.write($"Updating {kingdom.Name} -- 0x{color:X8} 0x{color2:X8} 0x{primaryBannerColor:X8} 0x{secondaryBannerColor:X8}");
                 Log.write($"Ruling clan {kingdom.RulingClan.Name}");
                 foreach (var kingdomClan in kingdom.Clans)
                 {
@@ -177,7 +177,7 @@ namespace KingdomColor
             return true;
         }
 
-        void ApplyOverrides()
+        public void ApplyOverrides()
         {
             if (Campaign.Current == null)
             {
@@ -238,7 +238,7 @@ namespace KingdomColor
             }
         }
 
-        static string FormatException(Exception ex)
+        public static string FormatException(Exception ex)
         {
             return $"{ex.GetType().Name}: {ex.Message}\r\n{ex.StackTrace}" + (ex.InnerException != null ? "\r\n" + FormatException(ex.InnerException) : "");
         }

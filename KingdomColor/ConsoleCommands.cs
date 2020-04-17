@@ -84,5 +84,36 @@ Use ""kingdomcolor.list_clans"" to see a list of clans";
             }
             return $"Changed {clan.Name}'s banner. Open and close the Clan page to take effect.";
         }
+
+        [CommandLineFunctionality.CommandLineArgumentFunction("load_and_save_defaults", "kingdomcolor")]
+        public static string LoadSaveDefaults(List<string> strings)
+        {
+            if (strings.Count < 1 || strings[0] != "reset")
+            {
+                return @"This command will overwrite your settings file at:
+  Documents\Mount and Blade II Bannerlord\Configs\KingdomColor.xml
+Run the command ""kingdomcolor.load_and_save_defaults reset"" to confirm.";
+            }
+
+            if (Campaign.Current == null || MBObjectManager.Instance == null)
+                return "You must have a game loaded.";
+
+            try
+            {
+                var settings = DefaultLoader.Load();
+                Settings.Instance = settings;
+                Settings.Save();
+                KingdomColorModule.Instance.ApplyOverrides();
+
+                return @"Your settings file at:
+  Documents\Mount and Blade II Bannerlord\Configs\KingdomColor.xml
+  has been overwritten with defaults.
+Open and close the Clan page to take effect.";
+            }
+            catch (Exception ex)
+            {
+                return "Error loading defaults:\n" + KingdomColorModule.FormatException(ex).Replace("\r", "");
+            }
+        }
     }
 }
