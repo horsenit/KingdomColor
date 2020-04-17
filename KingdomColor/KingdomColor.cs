@@ -33,8 +33,9 @@ namespace KingdomColor
                 foreach (var kingdomClan in kingdom.Clans)
                 {
                     Log.write($"  Updating clan {kingdomClan} colors");
+                    // I'm very confused about my previous motivations
                     // Don't update player clan colours, we just did that you idiot.
-                    if (kingdomClan == skipClan)
+                    if (!ShouldReplaceClanColor(kingdomClan) || kingdomClan == skipClan)
                     {
                         Log.write($"!!Skipping clan {skipClan}");
                         continue;
@@ -97,6 +98,20 @@ namespace KingdomColor
         public static bool ShouldReplaceKingdomColor(Clan playerClan)
         {
             return playerClan != null && playerClan.Kingdom != null && (!Settings.Instance.OnlyPlayerRuledKingdoms || playerClan.Kingdom.RulingClan == playerClan);
+        }
+
+        public static bool ShouldReplaceClanColor(Clan clan)
+        {
+            if (clan == null)
+                return false;
+            if (clan == Clan.PlayerClan && !Settings.Instance.PlayerClanBannerFollowsKingdom)
+                return false;
+            if (Settings.Instance.UseClanBannerOverrides &&
+                Settings.Instance.GetClanBannerOverride(clan)?.FollowKingdomColors == false)
+            {
+                return false;
+            }
+            return true;
         }
 
         public static (uint, uint, uint, uint) GetOverrideColors(IFaction kingdom, uint primaryBannerColor, uint secondaryBannerColor, uint color, uint color2)

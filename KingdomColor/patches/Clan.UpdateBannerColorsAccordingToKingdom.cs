@@ -11,36 +11,24 @@ namespace KingdomColor.patches
     [HarmonyPatch(typeof(Clan), "UpdateBannerColorsAccordingToKingdom")]
     class Clan_UpdateBannerColorsAccordingToKingdom
     {
-        static bool Prefix(Clan __instance, ref ClanBanner __state)
+        static bool Prefix(Clan __instance)
         {
             var clan = __instance;
             if (Settings.Instance != null)
             {
-                if (clan == Clan.PlayerClan)
-                {
-                    if (!Settings.Instance.PlayerClanBannerFollowsKingdom)
-                        return false;
-                }
-                if (Settings.Instance.UseClanBannerOverrides)
-                {
-                    var info = Settings.Instance.GetClanBannerOverride(clan);
-                    __state = info;
-                    if (info != null)
-                    {
-                        if (!info.FollowKingdomColors)
-                            return false;
-                    }
-                }
+                if (!KingdomColorModule.ShouldReplaceClanColor(clan))
+                    return false;
             }
             return true;
         }
 
         // If FollowKingdomColors is true, we want ruler banner colors to change as well
-        static void Postfix(Clan __instance, ref ClanBanner __state)
+        static void Postfix(Clan __instance)
         {
             var clan = __instance;
-            var info = __state;
-            if (info != null && clan?.Kingdom?.RulingClan == clan && info.FollowKingdomColors)
+            if (clan.Kingdom?.RulingClan == clan &&
+                Settings.Instance.UseClanBannerOverrides &&
+                Settings.Instance.GetClanBannerOverride(clan)?.FollowKingdomColors == true)
             {
                 clan.Banner?.ChangePrimaryColor(clan.Kingdom.PrimaryBannerColor);
                 clan.Banner?.ChangeIconColors(clan.Kingdom.SecondaryBannerColor);
