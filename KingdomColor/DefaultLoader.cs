@@ -117,6 +117,8 @@ namespace KingdomColor
             Settings.UseClanBannerOverrides = true;
             Settings.UseFactionColorOverrides = true;
             Settings.UseUniformColorOverrides = true;
+            Settings.OnlyPlayerRuledKingdoms = Settings.Instance.OnlyPlayerRuledKingdoms;
+            Settings.PlayerClanBannerFollowsKingdom = Settings.Instance.PlayerClanBannerFollowsKingdom;
         }
 
         public static Settings Load()
