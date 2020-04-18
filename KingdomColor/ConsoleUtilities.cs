@@ -95,9 +95,14 @@ namespace KingdomColor
 
         public static string GetObjectList<T>() where T : MBObjectBase
         {
+            return GetObjectList<T>(obj => obj.GetName().ToString());
+        }
+
+        public static string GetObjectList<T>(Func<T, string> getName) where T : MBObjectBase
+        {
             var output = new StringBuilder($"\nList of {typeof(T).Name}s\n==============================\n");
             foreach (var obj in MBObjectManager.Instance.GetObjectTypeList<T>())
-                output.Append($" Id: {obj.StringId}, Name: '{obj.GetName()}'\n");
+                output.Append($" Id: {obj.StringId}, Name: '{getName(obj)}'\n");
             return output.ToString();
         }
     }

@@ -60,6 +60,12 @@ Use ""kingdomcolor.set_kingdom_color colors/kingdoms"" to list available colors 
             return ConsoleUtilities.GetObjectList<Clan>();
         }
 
+        [CommandLineFunctionality.CommandLineArgumentFunction("list_kingdoms", "kingdomcolor")]
+        public static string ListKingdoms(List<string> args)
+        {
+            return ConsoleUtilities.GetObjectList<Kingdom>(k => k.Name.ToString());
+        }
+
         [CommandLineFunctionality.CommandLineArgumentFunction("set_clan_banner", "kingdomcolor")]
         public static string SetClanBanner(List<string> strings)
         {
