@@ -115,5 +115,12 @@ Open and close the Clan page to take effect.";
                 return "Error loading defaults:\n" + KingdomColorModule.FormatException(ex).Replace("\r", "");
             }
         }
+
+        [CommandLineFunctionality.CommandLineArgumentFunction("reload_config", "kingdomcolor")]
+        public static string ReloadConfig(List<string> strings)
+        {
+            KingdomColorModule.Instance.Reload();
+            return "Open and close the Clan page to take effect.";
+        }
     }
 }

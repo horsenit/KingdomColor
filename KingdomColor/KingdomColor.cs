@@ -245,6 +245,11 @@ namespace KingdomColor
 
         public override void OnGameInitializationFinished(Game game)
         {
+            Reload();
+        }
+
+        public void Reload()
+        {
             Settings.Load();
             ApplyOverrides();
         }
