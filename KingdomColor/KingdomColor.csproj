@@ -292,6 +292,7 @@
     <Compile Include="DefaultLoader.cs" />
     <Compile Include="Log.cs" />
     <Compile Include="KingdomColor.cs" />
+    <Compile Include="patches\BannerEditorView_OnTick.cs" />
     <Compile Include="patches\BannerEditorVM.SetClanRelatedRules.cs" />
     <Compile Include="patches\Clan.UpdateBannerColorsAccordingToKingdom.cs" />
     <Compile Include="patches\MBBannerEditorGauntletScreen.OnDone.cs" />
